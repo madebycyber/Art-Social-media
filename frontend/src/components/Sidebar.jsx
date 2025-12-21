@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, PlusSquare, User, LogOut, Heart } from 'lucide-react'; // Bỏ Settings nếu chưa dùng
+import { Home, PlusSquare, User, LogOut, Heart, MessageCircle } from 'lucide-react'; // Bỏ Settings nếu chưa dùng
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ user, onLogout }) => {
@@ -10,6 +10,7 @@ const Sidebar = ({ user, onLogout }) => {
     { icon: PlusSquare, label: 'Đăng tranh', path: '/upload' },
     { icon: Heart, label: 'Yêu thích', path: '/favorites' },
     { icon: User, label: 'Hồ sơ', path: '/profile' },
+    { icon: MessageCircle, label: 'Nhắn tin', path: '/chat' }
   ];
 
   // Logic kiểm tra Active chuẩn hơn:

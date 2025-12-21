@@ -38,24 +38,44 @@ const Home = () => {
         }
     }, [user, navigate]);
 
-    // 3. Logic Fetch Data (Tách biệt hoàn toàn)
+// 3. Logic Fetch Data
     useEffect(() => {
         // Chỉ chạy khi user tồn tại
         if (user) {
             const fetchData = async () => {
                 try {
-                    const artworksData = await axiosClient.get('/artworks');
+                    // SỬ DỤNG PROMISE.ALL ĐỂ GỌI SONG SONG (Nhanh hơn & Tránh lỗi biến chưa khởi tạo)
+                    const [
+                        artworksData, 
+                        likedData, 
+                        followingIdData, 
+                        followingData, 
+                        followerData
+                    ] = await Promise.all([
+                        axiosClient.get('/artworks'),                 // 0
+                        axiosClient.get('/users/me/liked-ids'),       // 1
+                        axiosClient.get('/users/me/following-ids'),   // 2
+                        axiosClient.get('/users/me/following'),       // 3
+                        axiosClient.get('/users/me/followers')        // 4
+                    ]);
+
+                    // --- CẬP NHẬT STATE AN TOÀN ---
+
+                    // 1. Artworks
                     if (Array.isArray(artworksData)) setArtworks(artworksData);
 
-                    const likedData = await axiosClient.get('/users/me/liked-ids');
+                    // 2. Liked IDs (Chuyển thành Set)
                     if (Array.isArray(likedData)) setLikedIds(new Set(likedData));
 
-                    const followingIdData = await axiosClient.get('/users/me/following-ids');
-                    if (Array.isArray(followingIdData)) setFollowingIds(followingData);
-                    const followingData = await axiosClient.get('/users/me/following');
+                    // 3. Following IDs (Chuyển thành Set - SỬA LỖI Ở ĐÂY)
+                    if (Array.isArray(followingIdData)) setFollowingIds(new Set(followingIdData));
+
+                    // 4. Danh sách người đang follow (Sidebar)
                     if (Array.isArray(followingData)) setMyFollowingList(followingData);
-                    const followerData = axiosClient.get('/users/me/followers');
+
+                    // 5. Danh sách người follow mình (Sidebar - SỬA LỖI THIẾU AWAIT)
                     if (Array.isArray(followerData)) setMyFollowersList(followerData);
+
                 } catch (error) {
                     console.error("Error fetching home data:", error);
                     // Nếu lỗi 401 (Unauthorized), lúc này mới đá về login
@@ -67,7 +87,7 @@ const Home = () => {
             };
             fetchData();
         }
-    }, [user]); // Phụ thuộc vào user để chạy lại khi login xong
+    }, [user]); 
     // Xử lý Like/Unlike
     const handleToggleLike = async (artworkId) => {
         const isLiked = likedIds.has(artworkId);
@@ -236,6 +256,19 @@ const Home = () => {
                                         <div>
                                         <h4 style={{ margin: 0 }}>{art.title}</h4>
                                         <span style={{ fontSize: '12px', color: '#a1a1aa' }}>@{art.user?.username}</span>
+                                                                        {/* NÚT NHẮN TIN MỚI */}
+                                        {art.user.id !== user.id && (
+                                            <button 
+                                                onClick={() => navigate('/chat', { state: { selectedUser: art.user } })}
+                                                style={{
+                                                    background: 'transparent', border: '1px solid #52525b', color: '#d4d4d8',
+                                                    borderRadius: '20px', padding: '5px 12px', fontSize: '12px', fontWeight: 'bold',
+                                                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
+                                                }}
+                                            >
+                                                <MessageCircle size={14} /> Nhắn tin
+                                            </button>
+                                        )}
                                         </div>
                                     </div>
                                 
@@ -372,7 +405,7 @@ const Home = () => {
                     <h4 style={{ marginTop: 0, marginBottom: '15px', color: '#a78bfa' }}>Đang theo dõi ({myFollowingList.length})</h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '30px' }}>
                         {myFollowingList.map(u => (
-                            <div key={u.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div key={u.id} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                     <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}>
                                         {u.username.charAt(0).toUpperCase()}
@@ -385,6 +418,17 @@ const Home = () => {
                                     isFollowing={true} // List này chắc chắn là true
                                     onToggle={handleToggleFollow}
                                 />
+                                {/* NÚT NHẮN TIN MỚI */}
+                                <button 
+                                        onClick={() => navigate('/chat', { state: { selectedUser: u } })}
+                                        style={{
+                                            background: 'transparent', border: '1px solid #52525b', color: '#d4d4d8',
+                                            borderRadius: '20px', padding: '5px 12px', fontSize: '12px', fontWeight: 'bold',
+                                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
+                                        }}
+                                    >
+                                        <MessageCircle size={14} /> Nhắn tin
+                                </button>
                             </div>
                         ))}
                     </div>
@@ -395,7 +439,7 @@ const Home = () => {
                     <h4 style={{ marginTop: '20px', marginBottom: '15px', color: '#f472b6' }}>Người theo dõi ({myFollowersList.length})</h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         {myFollowersList.map(u => (
-                            <div key={u.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div key={u.id} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                     <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}>
                                         {u.username.charAt(0).toUpperCase()}
@@ -408,6 +452,17 @@ const Home = () => {
                                     isFollowing={followingIds.has(u.id)}
                                     onToggle={handleToggleFollow}
                                 />
+                                {/* NÚT NHẮN TIN MỚI */}
+                                <button 
+                                        onClick={() => navigate('/chat', { state: { selectedUser: u } })}
+                                        style={{
+                                            background: 'transparent', border: '1px solid #52525b', color: '#d4d4d8',
+                                            borderRadius: '20px', padding: '5px 12px', fontSize: '12px', fontWeight: 'bold',
+                                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
+                                        }}
+                                    >
+                                        <MessageCircle size={14} /> Nhắn tin
+                                </button>
                             </div>
                         ))}
                     </div>

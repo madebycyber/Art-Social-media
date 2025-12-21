@@ -1,9 +1,11 @@
 package com.artsocial.backend.controller;
 
+import com.artsocial.backend.dto.ChatRoomDTO;
 import com.artsocial.backend.entity.Artwork;
 import com.artsocial.backend.entity.Collection;
 import com.artsocial.backend.entity.User;
 import com.artsocial.backend.repository.ArtworkRepository;
+import com.artsocial.backend.repository.ChatRoomRepository;
 import com.artsocial.backend.repository.CollectionRepository;
 import com.artsocial.backend.repository.UserRepository;
 import com.artsocial.backend.repository.CollectionItemRepository;
@@ -15,28 +17,26 @@ import com.artsocial.backend.entity.CollectionItem;
 import com.artsocial.backend.entity.Follow;
 import com.artsocial.backend.entity.FollowId;
 import com.artsocial.backend.repository.FollowRepository;
-
+import java.util.Date;
+import java.util.ArrayList;
+import com.artsocial.backend.entity.ChatRoom;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
-    @Autowired
-    private ArtworkRepository artworkRepository;
-    @Autowired
-    private CollectionRepository collectionRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private CollectionItemRepository collectionItemRepository;
-    @Autowired
-    private FollowRepository followRepository; // Inject Repository
-
+   @Autowired private ArtworkRepository artworkRepository;
+    @Autowired private CollectionRepository collectionRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private CollectionItemRepository collectionItemRepository;
+    @Autowired private FollowRepository followRepository;
+    @Autowired private ChatRoomRepository chatRoomRepository; // Inject ChatRoomRepository
 
     private User getCurrentUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByUsername(username).orElseThrow();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     // Lấy danh sách tranh đã Like
@@ -115,5 +115,32 @@ public class UserController {
     @GetMapping("/me/followers")
     public List<User> getMyFollowers() {
         return followRepository.findFollowersByUserId(getCurrentUser().getId());
+    }
+
+    @GetMapping("/me/chat-rooms")
+    public List<ChatRoomDTO> getMyChatRooms() {
+        Long myId = getCurrentUser().getId();
+
+        // Lấy danh sách phòng chat của tôi
+        List<ChatRoom> rooms = chatRoomRepository.findBySenderIdOrderByLastMessageAtDesc(myId);
+        List<ChatRoomDTO> result = new ArrayList<>();
+
+        for (ChatRoom room : rooms) {
+            // Tìm User đối phương
+            userRepository.findById(room.getRecipientId()).ifPresent(recipient -> {
+                ChatRoomDTO dto = new ChatRoomDTO();
+                dto.setRoomId(room.getId());
+                dto.setRecipientId(recipient.getId());
+                dto.setRecipientName(recipient.getUsername());
+                // dto.setRecipientAvatar(...) // Nếu có avatar thì set ở đây
+                
+                dto.setLastMessage(room.getLastMessage());
+                dto.setLastMessageAt(room.getLastMessageAt());
+                dto.setUnreadCount(room.getUnreadCount());
+                
+                result.add(dto);
+            });
+        }
+        return result;
     }
 }

@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import UploadPage from './pages/UploadPage';
 import ProfilePage from './pages/ProfilePage';
 import FavoritesPage from './pages/FavoritesPage';
+import ChatPage from './pages/ChatPage';
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
                 <Route path="/upload" element={<UploadPage />} />
                 <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/chat" element={<ChatPage />} />
             </Routes>
         </BrowserRouter>
     );

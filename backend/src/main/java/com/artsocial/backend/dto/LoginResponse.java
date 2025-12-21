@@ -1,13 +1,14 @@
-// AuthResponse.java
 package com.artsocial.backend.dto;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AuthResponse {
+public class LoginResponse {
     private String token;
+    private String type = "Bearer";
+    private Long id;        // Quan trọng: Phải có ID
     private String username;
-    private String role;
-    private String id; // Thêm trường id người dùng
+    private String email;
 }

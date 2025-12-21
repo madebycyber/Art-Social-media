@@ -41,8 +41,9 @@ public class AuthController {
 
             User user = userRepository.findByUsername(request.getUsername()).orElseThrow();
             String token = jwtUtils.generateToken(user.getUsername());
+            String id = user.getId().toString();
 
-            return ResponseEntity.ok(new AuthResponse(token, user.getUsername(), user.getRole()));
+            return ResponseEntity.ok(new AuthResponse(token, user.getUsername(), user.getRole(), id));
 
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Sai tên đăng nhập hoặc mật khẩu!");
