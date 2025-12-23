@@ -1,11 +1,10 @@
 :root {
-  --bg-color: #0f0f11; /* Màu nền tối */
-  --glass-bg: rgba(255, 255, 255, 0.07); /* Lớp kính mờ */
+  --bg-color: #0f0f11;
+  --glass-bg: rgba(255, 255, 255, 0.07);
   --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-  --glass-highlight: rgba(255, 255, 255, 0.2);
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
-  --accent-color: #8b5cf6; /* Màu tím điểm nhấn */
+  --accent-color: #8b5cf6;
   --blur-amt: 20px;
 }
 
@@ -14,30 +13,32 @@ body {
   padding: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--bg-color);
-  /* Ảnh nền trừu tượng phía sau để làm nổi bật hiệu ứng kính */
+  /* Background abstract */
   background-image: radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.4), transparent 25%),
                     radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.2), transparent 25%);
   background-attachment: fixed;
   color: var(--text-primary);
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden; /* Chặn cuộn body tổng */
 }
 
-/* Class tạo hiệu ứng kính (Dùng chung cho mọi nơi) */
+/* --- UTILS --- */
+a { text-decoration: none; color: inherit; transition: 0.2s; }
+ul { list-style: none; padding: 0; margin: 0; }
+button { font-family: inherit; cursor: pointer; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* --- GLASS EFFECT --- */
 .glass-panel {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--blur-amt));
   -webkit-backdrop-filter: blur(var(--blur-amt));
   border: var(--glass-border);
   border-radius: 24px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
-/* Các tiện ích khác */
-a { text-decoration: none; color: inherit; transition: 0.2s; }
-ul { list-style: none; padding: 0; margin: 0; }
-button { font-family: inherit; }
-
-/* Input field style kính */
+/* --- FORM ELEMENTS --- */
 .glass-input {
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -49,36 +50,285 @@ button { font-family: inherit; }
   outline: none;
   transition: 0.3s;
 }
-.glass-input:focus {
-  border-color: var(--accent-color);
-  background: rgba(0, 0, 0, 0.4);
-}
+.glass-input:focus { border-color: var(--accent-color); background: rgba(0, 0, 0, 0.4); }
 
-/* Button style */
 .btn-primary {
   background: linear-gradient(135deg, #feccff 0%, #6d28d9 100%);
   color: white;
   border: none;
   padding: 10px 20px;
   border-radius: 12px;
-  cursor: pointer;
   font-weight: 600;
   transition: 0.2s;
 }
 .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
 
-/* Layout Grid cho trang chủ */
-.social-layout {
-  display: grid;
-  grid-template-columns: 260px 1fr 300px; /* Sidebar - Feed - Widgets */
-  gap: 24px;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 24px;
-  height: 100vh;
-  box-sizing: border-box;
+/* --- STYLE CHO COMBOBOX (SELECT) --- */
+.glass-select {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: rgb(224, 180, 251);
+  padding: 10px 15px;
+  border-radius: 12px;
+  outline: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: 0.2s;
+  
+  /* Xóa style mặc định của browser */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  
+  /* Thêm icon mũi tên tùy chỉnh (SVG encoded) */
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 12px;
+  padding-right: 40px; /* Chừa chỗ cho mũi tên */
 }
 
-/* Scrollbar ẩn cho đẹp */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.glass-select:focus {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-color: #8b5cf6;
+}
+
+/* Style cho các option bên trong (Lưu ý: Option khó style trên hệ điều hành, thường nó sẽ ăn màu hệ thống) */
+.glass-select option {
+  background: #18181b; /* Màu nền tối */
+  color: (161, 161, 170);
+}
+
+/* =========================================
+   CUSTOM SCROLLBAR (DARK THEME)
+   ========================================= */
+
+/* 1. Dành cho Webkit Browsers (Chrome, Edge, Safari, Opera) */
+
+/* Độ rộng của thanh cuộn */
+::-webkit-scrollbar {
+  width: 6px;   /* Chiều rộng cho thanh dọc */
+  height: 6px;  /* Chiều cao cho thanh ngang */
+}
+
+/* Nền của thanh cuộn (Track) - Để trong suốt */
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+/* Thanh trượt (Thumb) - Màu kính mờ */
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15); /* Màu trắng mờ nhạt */
+  border-radius: 10px; /* Bo tròn */
+  transition: background 0.3s;
+}
+
+/* Hiệu ứng khi di chuột vào thanh trượt */
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3); /* Sáng hơn chút khi hover */
+}
+
+/* Góc giao nhau giữa thanh dọc và ngang */
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* 2. Dành cho Firefox (Firefox dùng chuẩn khác) */
+* {
+  scrollbar-width: thin; /* Thanh cuộn mỏng */
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent; /* Màu Thumb - Màu Track */
+}
+
+/* --- TINH CHỈNH RIÊNG CHO SIDEBAR PHẢI MOBILE --- */
+/* Để thanh lướt ngang trên mobile dễ thao tác hơn chút nhưng vẫn ẩn thanh cuộn xấu xí */
+@media (max-width: 1024px) {
+  .right-sidebar-container .glass-panel::-webkit-scrollbar {
+    height: 0px; /* Ẩn luôn thanh cuộn ngang trên mobile cho đẹp (vẫn lướt được bằng tay) */
+    background: transparent;
+  }
+}
+
+/* =========================================
+   GLOBAL 3-COLUMN LAYOUT SYSTEM
+   ========================================= */
+
+.app-layout-3-cols {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: transparent;
+  overflow: hidden;
+}
+
+/* 1. CỘT TRÁI (MENU) */
+.layout-left-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  height: 100%;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 2. CỘT GIỮA (MAIN CONTENT) */
+.layout-main-content {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.layout-content-inner {
+  width: 100%;
+  padding: 20px;
+}
+
+/* 3. CỘT PHẢI (FRIENDS) */
+.layout-right-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  height: 100%;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.right-sidebar-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN (MOBILE / TABLET)
+   Dưới 1024px sẽ chuyển layout
+   ========================================= */
+
+@media (max-width: 1024px) {
+  
+  /* Chuyển layout sang dạng cột dọc */
+  .app-layout-3-cols {
+    flex-direction: column;
+  }
+
+  /* --- 1. SIDEBAR TRÁI -> MENU NGANG Ở TRÊN --- */
+  .layout-left-sidebar {
+    width: 100%;
+    height: 60px; /* Chiều cao cố định */
+    order: 1; /* Xếp đầu tiên */
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 15, 17, 0.95); /* Nền tối để không bị lộ nội dung trôi dưới */
+    z-index: 1000;
+    margin-top: 15px;
+    
+    /* Ghi đè flex bên trong để xếp ngang */
+  }
+  
+  /* Ẩn logo và footer user trên mobile */
+  .layout-left-sidebar .desktop-only {
+    display: none !important;
+  }
+
+  /* Chỉnh nav bên trong xếp ngang */
+  .layout-left-sidebar nav {
+    flex-direction: row !important;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0 10px;
+  }
+
+  .layout-left-sidebar nav a {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  .layout-left-sidebar nav .nav-item-container {
+    padding: 8px !important;
+    justify-content: center !important;
+  }
+
+  .layout-left-sidebar nav .nav-item-text {
+    display: none; /* Ẩn chữ, chỉ hiện icon */
+  }
+
+  /* --- 2. CỘT GIỮA (NỘI DUNG) --- */
+  .layout-main-content {
+    order: 2; /* Xếp giữa */
+    flex: 1; /* Chiếm hết không gian còn lại */
+    padding-bottom: 0;
+  }
+
+  /* --- 3. SIDEBAR PHẢI -> DANH SÁCH NGANG Ở DƯỚI --- */
+  .layout-right-sidebar {
+    width: 100%;
+    height: 90px; 
+    order: 3; 
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 15, 17, 0.95);
+    z-index: 1000;
+  }
+
+  /* Chỉnh lại giao diện bên trong RightSidebar thành hàng ngang */
+  .right-sidebar-container .glass-panel {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 15px !important;
+    overflow-x: auto; /* Cho phép lướt ngang */
+    overflow-y: hidden;
+    white-space: nowrap;
+    border: none !important; /* Bỏ viền kính cho thoáng */
+    background: transparent !important;
+    border-radius: 0 !important;
+  }
+
+  /* Ẩn tiêu đề "Đang theo dõi", "Người theo dõi" và HR để tiết kiệm chỗ */
+  .right-sidebar-container h4, 
+  .right-sidebar-container hr {
+    display: none;
+  }
+
+  /* Gộp 2 list (Following/Follower) thành dòng ngang */
+  .right-sidebar-container > div > div {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 15px !important;
+  }
+
+  /* Style lại từng User Item cho gọn (Avatar to, Tên nhỏ hoặc ẩn) */
+  .right-sidebar-container .glass-panel div[style*="justify-content: space-between"] {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 60px; /* Độ rộng tối thiểu để dễ bấm */
+  }
+
+  /* Ẩn nút Chat nhỏ (vì bấm vào avatar là ra profile/chat rồi) cho đỡ rối */
+  .right-sidebar-container button {
+    display: none;
+  }
+  
+  /* Avatar to lên một chút */
+  .right-sidebar-container div[style*="border-radius: 50%"] {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 16px !important;
+    border: 2px solid var(--accent-color); /* Viền nổi bật */
+  }
+
+  /* Tên user nhỏ lại */
+  .right-sidebar-container div[style*="fontSize: 13px"] {
+    font-size: 10px !important;
+    max-width: 50px !important;
+    text-align: center;
+  }
+}
+
+

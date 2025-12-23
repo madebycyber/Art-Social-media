@@ -57,9 +57,6 @@ const UploadPage = () => {
 
     return (
         <div className="social-layout">
-            <aside style={{ height: 'calc(100vh - 48px)' }}>
-                <Sidebar user={user} onLogout={() => { localStorage.clear(); navigate('/login'); }} />
-            </aside>
 
             <main className="no-scrollbar" style={{ overflowY: 'auto', height: 'calc(100vh - 48px)', paddingTop: '20px', display: 'flex', justifyContent: 'center' }}>
                 <div className="glass-panel" style={{ width: '100%', maxWidth: '600px', padding: '30px' }}>

@@ -204,12 +204,11 @@ const ChatPage = () => {
 
     return (
         <div className="social-layout">
-            <aside><Sidebar user={user} /></aside>
             
-            <main style={{ height: 'calc(100vh - 48px)', display: 'flex', gap: '20px', padding: '20px' }}>
+            <main style={{ height: 'calc(100vh - 48px)', display: 'flex', gap: '20px', padding: '20px' , flexDirection: 'column'}}>
                 
                 {/* SIDEBAR */}
-                <div className="glass-panel" style={{ width: '320px', display: 'flex', flexDirection: 'column' }}>
+                <div className="glass-panel" style={{ width: '100%', display: 'flex', flexDirection: 'column' , order: 1, height: '200px' }}>
                     <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                         <h3 style={{ margin: '0 0 15px 0', color: 'white' }}>Đoạn chat</h3>
                         <button 
@@ -251,7 +250,7 @@ const ChatPage = () => {
                 </div>
 
                 {/* CHAT WINDOW */}
-                <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div className="glass-panel" style={{display: 'flex', flexDirection: 'column', width: '100%', order: 2, height: 'calc(100% - 220px)'}}>
                     {activeRoom ? (
                         <>
                             <div style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
