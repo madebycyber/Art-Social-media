@@ -22,4 +22,13 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
     // Lấy danh sách ID tranh mà user đã like (để tô đỏ trái tim ở Home)
     @Query("SELECT al.artworkId FROM ArtworkLike al WHERE al.userId = :userId")
     List<Long> findLikedArtworkIdsByUserId(@Param("userId") Long userId);
+
+    List<Artwork> findTop5ByOrderByLikeCountDesc();
+
+    // Đếm tổng số tranh
+    long count();
+
+    // Tính tổng lượng Like toàn hệ thống (Dùng COALESCE để tránh null)
+    @Query(value = "SELECT COALESCE(SUM(like_count), 0) FROM artworks", nativeQuery = true)
+    Long sumTotalLikes();
 }

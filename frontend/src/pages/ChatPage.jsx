@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axiosClient from '../api/axiosClient';
 import Sidebar from '../components/Sidebar';
-import { Send, MoreVertical } from 'lucide-react';
+import { Send, MoreVertical, Bot } from 'lucide-react';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import { useNavigate, useLocation } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown'; // Import Markdown
+import remarkGfm from 'remark-gfm';         // Import Plugin GFM
 
 const ChatPage = () => {
-    // 1. Lấy User an toàn
     const [user] = useState(() => {
         try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
     });
@@ -21,10 +22,13 @@ const ChatPage = () => {
     const [messages, setMessages] = useState([]);
     const [msgContent, setMsgContent] = useState("");
     
+    // --- STATE MỚI: Hiển thị Bot đang suy nghĩ ---
+    const [isBotThinking, setIsBotThinking] = useState(false);
+    
     // Refs
     const stompClientRef = useRef(null);
     const messagesEndRef = useRef(null);
-    const userRef = useRef(user); // Dùng Ref để truy cập user trong callback của socket mà không cần dependency
+    const userRef = useRef(user);
 
     // --- HELPER: Format thời gian ---
     const formatTime = (dateString) => {
@@ -57,39 +61,44 @@ const ChatPage = () => {
     useEffect(() => {
         if (location.state?.selectedUser) {
             const targetUser = location.state.selectedUser;
-            const existingRoom = chatRooms.find(r => r.recipientId === targetUser.id);
-            
-            if (existingRoom) {
-                setActiveRoom(existingRoom);
-            } else {
-                const tempRoom = {
-                    roomId: null,
-                    recipientId: targetUser.id,
-                    recipientName: targetUser.username,
-                    lastMessage: "Bắt đầu cuộc trò chuyện mới",
-                    unreadCount: 0
-                };
-                setChatRooms(prev => [tempRoom, ...prev]);
-                setActiveRoom(tempRoom);
-            }
+            startChatWithUser(targetUser);
         }
     }, [location.state, chatRooms]);
 
-    // --- 3. KẾT NỐI WEBSOCKET (ĐÃ SỬA LỖI MESSAGE NHÂN BẢN) ---
+    // Hàm chung để bắt đầu chat (dùng cho cả User thường và Bot)
+    const startChatWithUser = (targetUser) => {
+        const existingRoom = chatRooms.find(r => r.recipientId === targetUser.id);
+        if (existingRoom) {
+            setActiveRoom(existingRoom);
+        } else {
+            const tempRoom = {
+                roomId: null,
+                recipientId: targetUser.id,
+                recipientName: targetUser.username,
+                lastMessage: "Bắt đầu cuộc trò chuyện mới",
+                unreadCount: 0
+            };
+            setChatRooms(prev => [tempRoom, ...prev]);
+            setActiveRoom(tempRoom);
+        }
+    };
+
+    // Hàm mở chat Bot (gọi từ nút bấm)
+    const startBotChat = () => {
+        const botUser = { id: 9999, username: "Gemini AI" };
+        startChatWithUser(botUser);
+    };
+
+    // --- 3. KẾT NỐI WEBSOCKET ---
     useEffect(() => {
         if (!user?.id) return;
-
-        // Nếu đã có kết nối rồi thì không kết nối lại (Fix lỗi nhân bản tin nhắn)
         if (stompClientRef.current && stompClientRef.current.connected) return;
 
         const socket = new SockJS('http://localhost:5000/ws');
         const stompClient = Stomp.over(socket);
-        stompClient.debug = null; // Tắt log console cho gọn
+        stompClient.debug = null;
 
         stompClient.connect({}, () => {
-            // console.log("Connected to WebSocket");
-            
-            // Subscribe chỉ 1 lần duy nhất
             stompClient.subscribe(`/user/${user.id}/queue/messages`, (payload) => {
                 const receivedMsg = JSON.parse(payload.body);
                 handleIncomingMessage(receivedMsg);
@@ -98,34 +107,34 @@ const ChatPage = () => {
 
         stompClientRef.current = stompClient;
 
-        // Cleanup: Ngắt kết nối khi rời trang
         return () => {
             if (stompClientRef.current && stompClientRef.current.connected) {
                 stompClientRef.current.disconnect();
             }
             stompClientRef.current = null;
         };
-    }, [user]); // Dependency chỉ là user, không bao giờ thêm messages hay activeRoom vào đây
+    }, [user]);
 
     // --- LOGIC: XỬ LÝ TIN NHẮN ĐẾN ---
     const handleIncomingMessage = (msg) => {
-        // Sử dụng functional update để luôn lấy state mới nhất mà không cần đưa vào dependency
         setActiveRoom(currentActive => {
-            // Kiểm tra xem tin nhắn này có thuộc về phòng đang mở không
-            // (Là tin người khác gửi đến phòng này HOẶC là tin mình vừa gửi đi được server echo về)
             const isRelated = currentActive && (msg.senderId === currentActive.recipientId || msg.recipientId === currentActive.recipientId);
             
             if (isRelated) {
                 setMessages(prev => {
-                    // Chống trùng lặp (nếu mạng lag gửi 2 lần)
                     if (prev.some(m => m.id === msg.id && m.id !== null)) return prev;
                     return [...prev, msg];
                 });
+
+                // --- LOGIC MỚI: NẾU NHẬN ĐƯỢC TIN TỪ BOT -> TẮT LOADING ---
+                if (msg.senderId === 9999) {
+                    setIsBotThinking(false);
+                }
             }
             return currentActive;
         });
 
-        // Update Sidebar (Đẩy lên đầu)
+        // Update Sidebar
         setChatRooms(prevRooms => {
             const partnerId = msg.senderId === userRef.current.id ? msg.recipientId : msg.senderId;
             const existingIndex = prevRooms.findIndex(r => r.recipientId === partnerId);
@@ -136,13 +145,12 @@ const ChatPage = () => {
                     ...prevRooms[existingIndex],
                     lastMessage: msg.senderId === userRef.current.id ? `Bạn: ${msg.content}` : msg.content,
                     lastMessageAt: new Date(),
-                    unreadCount: 0 // Reset tạm thời nếu đang mở
+                    unreadCount: 0 
                 };
                 const newRooms = [...prevRooms];
                 newRooms.splice(existingIndex, 1);
                 return [updatedRoom, ...newRooms];
             } else {
-                // Nếu là tin nhắn mới từ người lạ, reload lại list cho chắc
                 axiosClient.get('/users/me/chat-rooms').then(res => setChatRooms(res));
                 return prevRooms;
             }
@@ -152,6 +160,9 @@ const ChatPage = () => {
     // --- 4. LOAD LỊCH SỬ TIN NHẮN ---
     useEffect(() => {
         if (activeRoom && user) {
+            // Reset trạng thái thinking khi chuyển phòng
+            setIsBotThinking(false);
+            
             axiosClient.get(`/messages/${user.id}/${activeRoom.recipientId}`)
                 .then(data => {
                     setMessages(data || []);
@@ -160,8 +171,7 @@ const ChatPage = () => {
         }
     }, [activeRoom]);
 
-    // Auto scroll
-    useEffect(() => { scrollToBottom(); }, [messages]);
+    useEffect(() => { scrollToBottom(); }, [messages, isBotThinking]); // Scroll khi có tin mới hoặc khi bot đang nghĩ
     const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
     // --- GỬI TIN NHẮN ---
@@ -180,11 +190,13 @@ const ChatPage = () => {
             content: msgContent
         };
 
-        // Gửi lên Server
         stompClientRef.current.send("/app/chat", {}, JSON.stringify(chatMessage));
         
-        // QUAN TRỌNG: Không setMessages ở đây nữa (để tránh bị double tin nhắn).
-        // Ta đợi Server phản hồi về qua WebSocket rồi mới hiển thị.
+        // --- LOGIC MỚI: NẾU GỬI CHO BOT -> BẬT LOADING ---
+        if (activeRoom.recipientId === 9999) {
+            setIsBotThinking(true);
+        }
+
         setMsgContent("");
     };
 
@@ -196,10 +208,20 @@ const ChatPage = () => {
             
             <main style={{ height: 'calc(100vh - 48px)', display: 'flex', gap: '20px', padding: '20px' }}>
                 
-                {/* --- SIDEBAR LIST CHAT --- */}
+                {/* SIDEBAR */}
                 <div className="glass-panel" style={{ width: '320px', display: 'flex', flexDirection: 'column' }}>
                     <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                        <h3 style={{ margin: 0, color: 'white' }}>Đoạn chat</h3>
+                        <h3 style={{ margin: '0 0 15px 0', color: 'white' }}>Đoạn chat</h3>
+                        <button 
+                            onClick={startBotChat}
+                            style={{
+                                width: '100%', padding: '10px', background: 'linear-gradient(90deg, #2563eb, #9333ea)',
+                                border: 'none', borderRadius: '10px', color: 'white', fontWeight: 'bold',
+                                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+                            }}
+                        >
+                            <Bot size={20} /> Chat với Gemini AI
+                        </button>
                     </div>
                     <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
                         {chatRooms.map(room => (
@@ -228,64 +250,82 @@ const ChatPage = () => {
                     </div>
                 </div>
 
-                {/* --- CHAT WINDOW --- */}
+                {/* CHAT WINDOW */}
                 <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     {activeRoom ? (
                         <>
-                            {/* Header */}
                             <div style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
-                                    <div style={{width:'36px', height:'36px', borderRadius:'50%', background:'#444', display:'flex', alignItems:'center', justifyContent:'center'}}>
-                                        {activeRoom.recipientName?.charAt(0).toUpperCase()}
+                                    <div style={{width:'36px', height:'36px', borderRadius:'50%', background: activeRoom.recipientId === 9999 ? 'linear-gradient(45deg, #2563eb, #9333ea)' : '#444', display:'flex', alignItems:'center', justifyContent:'center'}}>
+                                        {activeRoom.recipientId === 9999 ? <Bot size={20} color="white"/> : activeRoom.recipientName?.charAt(0).toUpperCase()}
                                     </div>
                                     <span style={{fontWeight:'bold'}}>{activeRoom.recipientName}</span>
                                 </div>
                                 <MoreVertical size={20} color="#888" />
                             </div>
 
-                            {/* --- MESSAGE LIST (ĐÃ SỬA GIAO DIỆN) --- */}
                             <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 {messages.map((msg, index) => {
-                                    // Kiểm tra xem tin nhắn này là của TÔI hay NGƯỜI KHÁC
                                     const isMe = msg.senderId.toString() === user.id;
-
+                                    const isBot = msg.senderId === 9999;
+                                    
                                     return (
                                         <div key={index} style={{ 
                                             display: 'flex', 
-                                            justifyContent: isMe ? 'flex-end' : 'flex-start', // Căn phải nếu là mình, trái nếu là họ
+                                            justifyContent: isMe ? 'flex-end' : 'flex-start',
                                             marginBottom: '4px'
                                         }}>
-                                            <div style={{ 
-                                                maxWidth: '70%',
-                                                padding: '10px 15px', 
-                                                fontSize: '14px',
-                                                lineHeight: '1.4',
-                                                // MÀU SẮC KHÁC BIỆT
-                                                background: isMe ? '#8b5cf6' : '#3f3f46', // Tím (User) vs Xám đậm (Khách)
-                                                color: 'white',
-                                                // BO GÓC KHÁC BIỆT
-                                                borderRadius: '18px',
-                                                borderBottomRightRadius: isMe ? '4px' : '18px', // Nhọn góc dưới phải nếu là mình
-                                                borderBottomLeftRadius: isMe ? '18px' : '4px'   // Nhọn góc dưới trái nếu là họ
-                                            }}>
-                                                {msg.content}
+                                            <div 
+                                                className={`chat-bubble ${isMe ? 'me' : 'other'}`} // Thêm class để CSS
+                                                style={{ 
+                                                    maxWidth: '75%',
+                                                    padding: '10px 15px', 
+                                                    fontSize: '14px',
+                                                    lineHeight: '1.5',
+                                                    background: isMe ? '#8b5cf6' : (isBot ? '#1f2937' : '#3f3f46'), // Bot màu tối hơn chút
+                                                    color: 'white',
+                                                    borderRadius: '18px',
+                                                    borderBottomRightRadius: isMe ? '4px' : '18px',
+                                                    borderBottomLeftRadius: isMe ? '18px' : '4px',
+                                                    border: isBot ? '1px solid #374151' : 'none', // Viền cho Bot
+                                                }}
+                                            >
+                                                {/* --- HIỂN THỊ MARKDOWN --- */}
+                                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                    {msg.content}
+                                                </ReactMarkdown>
                                             </div>
                                         </div>
                                     );
                                 })}
+
+                                {/* --- HIỆU ỨNG AI ĐANG SUY NGHĨ --- */}
+                                {isBotThinking && activeRoom.recipientId === 9999 && (
+                                    <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '4px' }}>
+                                        <div style={{ 
+                                            background: '#1f2937', color: '#9ca3af', 
+                                            padding: '10px 15px', borderRadius: '18px', borderBottomLeftRadius: '4px',
+                                            fontSize: '13px', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '5px',
+                                            border: '1px solid #374151'
+                                        }}>
+                                            <Bot size={16} className="thinking-icon" /> 
+                                            <span>Gemini đang suy nghĩ<span className="typing-dots">...</span></span>
+                                        </div>
+                                    </div>
+                                )}
                                 <div ref={messagesEndRef} />
                             </div>
 
-                            {/* Input Form */}
                             <form onSubmit={sendMessage} style={{ padding: '15px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                                 <input 
                                     className="glass-input" 
                                     style={{ flex: 1, borderRadius: '24px', padding: '12px 20px' }} 
-                                    placeholder="Nhập tin nhắn..." 
+                                    placeholder={activeRoom.recipientId === 9999 ? "Hỏi Gemini AI bất cứ điều gì..." : "Nhập tin nhắn..."}
                                     value={msgContent}
                                     onChange={e => setMsgContent(e.target.value)}
+                                    disabled={isBotThinking} // Chặn gửi khi bot chưa trả lời xong (tùy chọn)
                                 />
-                                <button type="submit" className="btn-primary" style={{ borderRadius: '50%', width: '44px', height: '44px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <button type="submit" className="btn-primary" disabled={isBotThinking} style={{ borderRadius: '50%', width: '44px', height: '44px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isBotThinking ? 0.5 : 1 }}>
                                     <Send size={18} />
                                 </button>
                             </form>
