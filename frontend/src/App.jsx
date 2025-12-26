@@ -8,6 +8,7 @@ import ProfilePage from './pages/ProfilePage';
 import FavoritesPage from './pages/FavoritesPage';
 import ChatPage from './pages/ChatPage';
 import MainLayout from './components/MainLayout'; // Import Layout vừa tạo
+import RoleManagementPage from './pages/RoleManagementPage';
 
 function App() {
     // Giả lập lấy user từ localStorage (Logic cũ của bạn)
@@ -32,6 +33,7 @@ function App() {
                     <Route path="/favorites" element={<FavoritesPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/chat" element={<ChatPage />} />
+                    <Route path="/admin/roles" element={<RoleManagementPage />} />
                 </Routes>
             </MainLayout>
         </BrowserRouter>

@@ -22,8 +22,9 @@ public class User {
     // Hibernate xử lý enum PostgreSQL đôi khi phức tạp.
     // Để đơn giản và chạy ngay, ta map nó là String, nhưng cần insert đúng giá trị 'USER' hoặc 'ADMIN'
     // Lưu ý: Trong DB bạn set default là 'USER', nên khi insert null nó sẽ tự điền.
-    @Column(insertable = false) // Để DB tự set Default giá trị khi insert mới
-    private String role; 
+    @ManyToOne(fetch = FetchType.EAGER) // Load Role ngay khi login
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
     private String avatar;
 

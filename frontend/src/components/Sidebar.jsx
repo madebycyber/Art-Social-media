@@ -1,5 +1,5 @@
-import React from 'react';
-import { Home, PlusSquare, User, LogOut, Heart, MessageCircle } from 'lucide-react'; 
+import React from 'react';  
+import { Home, PlusSquare, User, LogOut, Heart, MessageCircle, Shield } from 'lucide-react'; // Thêm Shield
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ user, onLogout }) => {
@@ -46,6 +46,26 @@ const Sidebar = ({ user, onLogout }) => {
             </div>
           </Link>
         ))}
+
+        {/* --- NÚT ADMIN (CHỈ HIỆN KHI ROLE LÀ ADMIN) --- */}
+        {user && user.role === 'ADMIN' && (
+            <>
+                <div style={{height: '1px', background: 'rgba(255,255,255,0.1)', margin: '10px 0'}} className="desktop-only"></div>
+                
+                <Link to="/admin/roles" style={{ textDecoration: 'none' }}>
+                    <div className="nav-item-container" style={{
+                        display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '12px',
+                        background: isActive('/admin/roles') ? 'rgba(220, 38, 38, 0.15)' : 'transparent', // Màu đỏ nhẹ cho Admin
+                        color: isActive('/admin/roles') ? '#fca5a5' : '#a1a1aa',
+                        border: isActive('/admin/roles') ? '1px solid rgba(220, 38, 38, 0.3)' : '1px solid transparent',
+                        cursor: 'pointer', transition: '0.2s'
+                    }}>
+                        <Shield size={24} color={isActive('/admin/roles') ? '#ef4444' : 'currentColor'} />
+                        <span className="nav-item-text">Quản trị Role</span>
+                    </div>
+                </Link>
+            </>
+        )}
       </nav>
 
       {/* User Footer: Ẩn trên mobile */}
