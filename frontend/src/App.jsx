@@ -12,21 +12,38 @@ import RoleManagementPage from './pages/RoleManagementPage';
 import UserManagementPage from './pages/UserManagementPage';
 
 function App() {
-    // Giả lập lấy user từ localStorage (Logic cũ của bạn)
+    // Khởi tạo state từ localStorage
     const [user, setUser] = useState(() => {
-        try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
+        const savedUser = localStorage.getItem('user');
+        return savedUser ? JSON.parse(savedUser) : null;
     });
 
+    // --- HÀM NÀY ĐỂ LOGIN PAGE GỌI ---
+    const handleLoginSuccess = () => {
+        // Đọc lại từ localStorage và cập nhật State -> Sidebar sẽ tự render lại
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+        setUser(JSON.parse(savedUser));
+        }
+    };
+
     const handleLogout = () => {
-        localStorage.clear();
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         setUser(null);
-        window.location.href = '/login';
+        window.location.href = '/login'; // Force reload cho sạch state
     };
 
     return (
         <BrowserRouter>
-            <MainLayout user={user} onLogout={handleLogout}>
+            {/* Truyền user hiện tại vào MainLayout (chứa Sidebar) */}
+            <MainLayout user={user} onLogout={handleLogout}> 
                 <Routes>
+                    {/* Truyền hàm handleLoginSuccess xuống LoginPage */}
+                    <Route 
+                        path="/login" 
+                        element={<LoginPage onLoginSuccess={handleLoginSuccess} />} 
+                    />
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />

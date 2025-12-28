@@ -1,6 +1,6 @@
-import React from 'react';  
-import { Users } from 'lucide-react'; // Import Icon
-import { Home, PlusSquare, User, LogOut, Heart, MessageCircle, Shield } from 'lucide-react'; // Thêm Shield
+import React from 'react';
+// 1. Gộp import cho gọn
+import { Home, PlusSquare, User, LogOut, Heart, MessageCircle, Shield, Users } from 'lucide-react'; 
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ user, onLogout }) => {
@@ -29,8 +29,8 @@ const Sidebar = ({ user, onLogout }) => {
         </h1>
       </div>
 
-      {/* Menu: Thêm class mobile-nav-row để xếp ngang trên mobile */}
-      <nav className="mobile-nav-row" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', padding: '10px' }}>
+      {/* Menu: Thêm overflow-y: auto và class no-scrollbar để cuộn được nếu menu dài */}
+      <nav className="mobile-nav-row no-scrollbar" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', padding: '10px', overflowY: 'auto' }}>
         {menuItems.map((item) => (
           <Link to={item.path} key={item.path} style={{ textDecoration: 'none' }}>
             <div className="nav-item-container" style={{
@@ -42,7 +42,6 @@ const Sidebar = ({ user, onLogout }) => {
               cursor: 'pointer', transition: '0.2s'
             }}>
               <item.icon size={24} color={isActive(item.path) ? '#8b5cf6' : 'currentColor'} />
-              {/* Chữ label sẽ bị ẩn trên mobile */}
               <span className="nav-item-text">{item.label}</span>
             </div>
           </Link>
@@ -56,7 +55,7 @@ const Sidebar = ({ user, onLogout }) => {
                 <Link to="/admin/roles" style={{ textDecoration: 'none' }}>
                     <div className="nav-item-container" style={{
                         display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '12px',
-                        background: isActive('/admin/roles') ? 'rgba(220, 38, 38, 0.15)' : 'transparent', // Màu đỏ nhẹ cho Admin
+                        background: isActive('/admin/roles') ? 'rgba(220, 38, 38, 0.15)' : 'transparent', 
                         color: isActive('/admin/roles') ? '#fca5a5' : '#a1a1aa',
                         border: isActive('/admin/roles') ? '1px solid rgba(220, 38, 38, 0.3)' : '1px solid transparent',
                         cursor: 'pointer', transition: '0.2s'
@@ -68,7 +67,7 @@ const Sidebar = ({ user, onLogout }) => {
                 <Link to="/admin/users" style={{ textDecoration: 'none' }}>
                     <div className="nav-item-container" style={{
                         display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '12px',
-                        background: isActive('/admin/users') ? 'rgba(59, 130, 246, 0.15)' : 'transparent', // Màu xanh
+                        background: isActive('/admin/users') ? 'rgba(59, 130, 246, 0.15)' : 'transparent', 
                         color: isActive('/admin/users') ? '#93c5fd' : '#a1a1aa',
                         border: isActive('/admin/users') ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid transparent',
                         cursor: 'pointer', transition: '0.2s', marginTop: '5px'
@@ -79,7 +78,23 @@ const Sidebar = ({ user, onLogout }) => {
                 </Link>
             </>
         )}
-              {/* User Footer: Ẩn trên mobile */}
+        
+        {/* --- NÚT LOGOUT CHO MOBILE (Chỉ hiện trên mobile - dùng CSS để xử lý class mobile-only nếu có) --- */}
+        {/* Nếu bạn chưa có class mobile-only, bạn có thể thêm logic kiểm tra màn hình hoặc để tạm ở đây */}
+        <div className="mobile-only-logout" style={{marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px'}}>
+             <div onClick={onLogout} className="nav-item-container" style={{
+                display: 'none', /* Mặc định ẩn, CSS sẽ hiện nó lên khi màn hình nhỏ */
+                alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '12px',
+                color: '#ff4d4d', cursor: 'pointer'
+             }}>
+                 <LogOut size={24} />
+                 {/* Trên mobile nav ngang thường ko hiện text, chỉ hiện icon */}
+             </div>
+        </div>
+
+      </nav>
+
+      {/* User Footer: Desktop Only */}
       {user && (
         <div className="desktop-only" style={{ padding: '24px', borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
@@ -96,8 +111,6 @@ const Sidebar = ({ user, onLogout }) => {
           </button>
         </div>
       )}
-      </nav>
-
 
     </div>
   );
