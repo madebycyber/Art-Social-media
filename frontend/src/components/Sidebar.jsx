@@ -1,4 +1,5 @@
 import React from 'react';  
+import { Users } from 'lucide-react'; // Import Icon
 import { Home, PlusSquare, User, LogOut, Heart, MessageCircle, Shield } from 'lucide-react'; // Thêm Shield
 import { Link, useLocation } from 'react-router-dom';
 
@@ -64,11 +65,21 @@ const Sidebar = ({ user, onLogout }) => {
                         <span className="nav-item-text">Quản trị Role</span>
                     </div>
                 </Link>
+                <Link to="/admin/users" style={{ textDecoration: 'none' }}>
+                    <div className="nav-item-container" style={{
+                        display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '12px',
+                        background: isActive('/admin/users') ? 'rgba(59, 130, 246, 0.15)' : 'transparent', // Màu xanh
+                        color: isActive('/admin/users') ? '#93c5fd' : '#a1a1aa',
+                        border: isActive('/admin/users') ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid transparent',
+                        cursor: 'pointer', transition: '0.2s', marginTop: '5px'
+                    }}>
+                        <Users size={24} color={isActive('/admin/users') ? '#3b82f6' : 'currentColor'} />
+                        <span className="nav-item-text">Quản lý User</span>
+                    </div>
+                </Link>
             </>
         )}
-      </nav>
-
-      {/* User Footer: Ẩn trên mobile */}
+              {/* User Footer: Ẩn trên mobile */}
       {user && (
         <div className="desktop-only" style={{ padding: '24px', borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
@@ -85,6 +96,9 @@ const Sidebar = ({ user, onLogout }) => {
           </button>
         </div>
       )}
+      </nav>
+
+
     </div>
   );
 };
