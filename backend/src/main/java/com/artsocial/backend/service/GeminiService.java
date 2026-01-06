@@ -13,8 +13,8 @@ import java.util.List;
 public class GeminiService {
 
     private final RestTemplate restTemplate;
-    // --- ĐIỀN API KEY CỦA BẠN VÀO ĐÂY ---
-    private final String API_KEY = "AIzaSyDiZxPKy7ycve7oafRymIlnWg916C0d-nE"; 
+
+    private final String API_KEY = "putyourapikeyhere"; 
     private final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + API_KEY;
 
     public GeminiService(RestTemplate restTemplate) {
@@ -23,7 +23,7 @@ public class GeminiService {
 
     public String callGemini(String userMessage) {
         try {
-            // Tạo Request JSON đúng chuẩn Gemini
+
             GeminiRequest request = new GeminiRequest();
             request.setContents(Collections.singletonList(
                 new Content(Collections.singletonList(new Part(userMessage)))
