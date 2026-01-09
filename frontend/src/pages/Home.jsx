@@ -5,6 +5,7 @@ import CommentItem from '../components/CommentItem';
 import FollowButton from '../components/FollowButton';
 import { useLocation } from 'react-router-dom';
 import { MessageCircle, Heart, Share2, Search, Bookmark, X, Plus, Filter } from 'lucide-react';
+import ImagePreviewModal from '../components/ImagePreviewModal';
 
 const Home = () => {
     const [artworks, setArtworks] = useState([]);
@@ -14,6 +15,8 @@ const Home = () => {
     });
     
     // --- STATE CHO TÌM KIẾM & BỘ LỌC ---
+    const [previewImage, setPreviewImage] = useState(null);
+    const [previewTitle, setPreviewTitle] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [filterType, setFilterType] = useState("newest"); // Mặc định: Mới nhất
 
@@ -283,7 +286,8 @@ const Home = () => {
                             <div style={{ borderRadius: '16px', overflow: 'hidden', marginBottom: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)', backgroundColor: '#000' }}>
                                 <img 
                                     src={`http://localhost:5000/api/artworks/images/${art.filePath}`} 
-                                    alt={art.title} 
+                                    alt={art.title}
+                                    onClick={() => { setPreviewImage(`http://localhost:5000/api/artworks/images/${art.filePath}`); setPreviewTitle(art.title); }}
                                     style={{ width: '100%', display: 'block', minHeight: '200px', objectFit: 'contain', maxHeight: '600px' }}
                                     onError={(e) => { e.target.style.display = 'none'; }} 
                                 />
@@ -353,6 +357,13 @@ const Home = () => {
                     </div>
                 </div>
             )}
+            {/* --- MODAL XEM ẢNH FULL (MỚI) --- */}
+            <ImagePreviewModal 
+                isOpen={!!previewImage} 
+                imageUrl={previewImage} 
+                title={previewTitle}
+                onClose={() => setPreviewImage(null)} 
+            />
         </div>
     );
 };

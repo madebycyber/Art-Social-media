@@ -10,6 +10,7 @@ import ChatPage from './pages/ChatPage';
 import MainLayout from './components/MainLayout'; // Import Layout vừa tạo
 import RoleManagementPage from './pages/RoleManagementPage';
 import UserManagementPage from './pages/UserManagementPage';
+import UserProfilePage from './pages/UserProfilePage';
 
 function App() {
     // Khởi tạo state từ localStorage
@@ -53,6 +54,7 @@ function App() {
                     <Route path="/chat" element={<ChatPage />} />
                     <Route path="/admin/roles" element={<RoleManagementPage />} />
                     <Route path="/admin/users" element={<UserManagementPage />} />
+                    <Route path="/profile/:userId" element={<UserProfilePage />} />
                 </Routes>
             </MainLayout>
         </BrowserRouter>

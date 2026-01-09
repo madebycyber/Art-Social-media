@@ -6,6 +6,7 @@ import com.artsocial.backend.entity.*;
 import com.artsocial.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -179,4 +180,15 @@ public class UserController {
         }
         return result;
     }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()") 
+    public ResponseEntity<?> getUserProfile(@PathVariable Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+        return ResponseEntity.ok(user);
+    }
+
+    // 2. API Follow/Unfollow (Đã có hoặc bổ sung nếu thiếu)
+    // ...
 }

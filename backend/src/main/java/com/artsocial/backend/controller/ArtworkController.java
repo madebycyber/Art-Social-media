@@ -1,6 +1,7 @@
 package com.artsocial.backend.controller;
 
 import com.artsocial.backend.entity.Artwork;
+import com.artsocial.backend.repository.ArtworkRepository;
 import com.artsocial.backend.service.ArtworkService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -22,6 +23,8 @@ public class ArtworkController {
 
     @Autowired
     private ArtworkService artworkService;
+    @Autowired
+    private ArtworkRepository artworkRepository;
     
     private final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/";
 
@@ -76,4 +79,13 @@ public class ArtworkController {
         } catch (Exception e) {}
         return ResponseEntity.notFound().build();
     }
+    
+// API lấy tranh của user (Code bạn vừa thêm bị lỗi)
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getArtworksByUser(@PathVariable Long userId) {
+        // Bây giờ biến artworkRepository đã được khai báo, lỗi sẽ biến mất
+        List<Artwork> artworks = artworkRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        return ResponseEntity.ok(artworks);
+    }
+
 }

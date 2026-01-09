@@ -34,12 +34,12 @@ public class ArtworkService {
 
     @LogAudit(action = "UPLOAD_ARTWORK")
     public Artwork uploadArtwork(String username, String title, String caption, String privacyStr, MultipartFile file) throws IOException {
-        // ... (Code xử lý file giữ nguyên) ...
-        // 1. Tạo folder ...
+
+        // 1. Tạo folder 
         File dir = new File(UPLOAD_DIR);
         if (!dir.exists()) dir.mkdirs();
 
-        // 2. Đọc và Resize ảnh ...
+        // 2. Đọc và Resize ảnh 
         BufferedImage originalImage = ImageIO.read(file.getInputStream());
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();

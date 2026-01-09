@@ -14,7 +14,7 @@ public class GeminiService {
 
     private final RestTemplate restTemplate;
     // --- ĐIỀN API KEY CỦA BẠN VÀO ĐÂY ---
-    private final String API_KEY = "AIzaSyDiZxPKy7ycve7oafRymIlnWg916C0d-nE"; 
+    private final String API_KEY = "AIzaSyCR0seb449wcgigMEyo9ZgVyl0vSeAOV-c"; 
     private final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + API_KEY;
 
     public GeminiService(RestTemplate restTemplate) {

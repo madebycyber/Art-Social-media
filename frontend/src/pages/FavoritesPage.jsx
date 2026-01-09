@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axiosClient from '../api/axiosClient';
 import { Heart, Folder, Plus, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ImagePreviewModal from '../components/ImagePreviewModal';
 
 const FavoritesPage = () => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -11,6 +12,7 @@ const FavoritesPage = () => {
     const [likedArtworks, setLikedArtworks] = useState([]);
     
     // State quản lý Collection
+    const [previewImage, setPreviewImage] = useState(null);
     const [collections, setCollections] = useState([]);
     const [newColName, setNewColName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
@@ -191,6 +193,7 @@ const FavoritesPage = () => {
                                 >
                                     <img 
                                         src={`http://localhost:5000/api/artworks/images/${item.artwork.filePath}`} 
+                                        onClick={() => setPreviewImage(item.artwork.imageUrl)}
                                         style={{ width: '100%', height: '200px', objectFit: 'cover' }}
                                         alt={item.artwork.title}
                                     />
@@ -204,6 +207,11 @@ const FavoritesPage = () => {
                                 <p style={{color: '#666'}}>Bộ sưu tập này trống.</p>
                             )}
                         </div>
+                        <ImagePreviewModal 
+                            isOpen={!!previewImage} 
+                            imageUrl={previewImage} 
+                            onClose={() => setPreviewImage(null)} 
+                        />
                     </div>
                 )}
 

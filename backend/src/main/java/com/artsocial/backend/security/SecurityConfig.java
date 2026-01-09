@@ -50,12 +50,15 @@ public class SecurityConfig {
                 // Dấu ** rất quan trọng để khớp với mọi tên file
                 .requestMatchers("/api/artworks/images/**").permitAll() 
                 
+                
                 // Cho phép xem danh sách tranh (GET) public
                 .requestMatchers(HttpMethod.GET, "/api/artworks/**").permitAll()
 
                 .requestMatchers("/ws/**").permitAll()
                 
                 // Các request khác (Upload, Comment...) bắt buộc phải có Token
+                .requestMatchers(HttpMethod.GET, "/api/users/{id}").authenticated()
+                .requestMatchers("/api/users/**").authenticated()
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess

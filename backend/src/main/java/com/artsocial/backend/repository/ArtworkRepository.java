@@ -25,6 +25,8 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
 
     List<Artwork> findTop5ByOrderByLikeCountDesc();
 
+    List<Artwork> findByUserIdOrderByCreatedAtDesc(Long userId);
+
     // Đếm tổng số tranh
     long count();
 
