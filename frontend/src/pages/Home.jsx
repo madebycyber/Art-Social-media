@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import CommentItem from '../components/CommentItem';
 import FollowButton from '../components/FollowButton';
 import { useLocation } from 'react-router-dom';
-import { MessageCircle, Heart, Share2, Search, Bookmark, X, Plus, Filter } from 'lucide-react';
+import { MessageCircle, Heart, Share2, Search, Bookmark, X, Plus, Filter, Clock } from 'lucide-react';
 import ImagePreviewModal from '../components/ImagePreviewModal';
 
 const Home = () => {

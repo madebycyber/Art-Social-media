@@ -4,10 +4,19 @@ import lombok.Data;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.io.Serializable; // NHỚ IMPORT DÒNG NÀY
+
+
 @Entity
 @Table(name = "roles")
 @Data
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "users"}) // Bỏ qua list users nếu có
 public class Role {
+
+    private static final long serialVersionUID = 1L;
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     

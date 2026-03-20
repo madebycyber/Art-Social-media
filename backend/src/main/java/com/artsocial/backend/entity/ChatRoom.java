@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.Date;
+import java.io.Serializable; // NHỚ IMPORT DÒNG NÀY
+
 
 @Entity
 @Table(name = "chat_rooms")
@@ -14,6 +16,10 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 public class ChatRoom {
+
+    private static final long serialVersionUID = 1L;
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

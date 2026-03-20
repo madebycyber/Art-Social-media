@@ -3,6 +3,8 @@ package com.artsocial.backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.io.Serializable; // NHỚ IMPORT DÒNG NÀY
+
 
 import java.time.LocalDateTime;
 
@@ -12,6 +14,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @IdClass(ArtworkLikeId.class) // Cần tạo thêm class Composite Key bên dưới
 public class ArtworkLike {
+
+    private static final long serialVersionUID = 1L;
+
 
     @Id
     @Column(name = "user_id")

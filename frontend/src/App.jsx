@@ -11,6 +11,7 @@ import MainLayout from './components/MainLayout'; // Import Layout vừa tạo
 import RoleManagementPage from './pages/RoleManagementPage';
 import UserManagementPage from './pages/UserManagementPage';
 import UserProfilePage from './pages/UserProfilePage';
+import SearchHistoryPage from './pages/SearchHistoryPage';
 
 function App() {
     // Khởi tạo state từ localStorage
@@ -55,6 +56,7 @@ function App() {
                     <Route path="/admin/roles" element={<RoleManagementPage />} />
                     <Route path="/admin/users" element={<UserManagementPage />} />
                     <Route path="/profile/:userId" element={<UserProfilePage />} />
+                    <Route path="/search-history" element={<SearchHistoryPage />} />
                 </Routes>
             </MainLayout>
         </BrowserRouter>

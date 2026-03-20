@@ -54,6 +54,8 @@ public class SecurityConfig {
                 // Cho phép xem danh sách tranh (GET) public
                 .requestMatchers(HttpMethod.GET, "/api/artworks/**").permitAll()
 
+                .requestMatchers("/api/redis/**").authenticated()
+
                 .requestMatchers("/ws/**").permitAll()
                 
                 // Các request khác (Upload, Comment...) bắt buộc phải có Token

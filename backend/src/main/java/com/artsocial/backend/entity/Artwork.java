@@ -1,17 +1,25 @@
 package com.artsocial.backend.entity;
 
 import com.artsocial.backend.enums.PrivacyStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
+import java.io.Serializable; // NHỚ IMPORT DÒNG NÀY
 import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "artworks")
 @Data
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Artwork {
+    
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
 
     @Column(nullable = false)
     private String title;

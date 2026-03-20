@@ -1,6 +1,6 @@
 import React from 'react';
 // 1. Gộp import cho gọn
-import { Home, PlusSquare, User, LogOut, Heart, MessageCircle, Shield, Users } from 'lucide-react'; 
+import { Home, PlusSquare, User, LogOut, Heart, MessageCircle, Shield, Users, Clock } from 'lucide-react'; 
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ user, onLogout }) => {
@@ -11,6 +11,7 @@ const Sidebar = ({ user, onLogout }) => {
     { icon: PlusSquare, label: 'Đăng tranh', path: '/upload' },
     { icon: Heart, label: 'Yêu thích', path: '/favorites' },
     { icon: MessageCircle, label: 'Nhắn tin', path: '/chat' },
+    {icon: Clock, label: 'Tìm kiếm', path: '/search-history' },
     { icon: User, label: 'Hồ sơ', path: '/profile' }
   ];
 

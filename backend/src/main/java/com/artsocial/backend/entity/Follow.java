@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.io.Serializable; // NHỚ IMPORT DÒNG NÀY
+
 
 @Entity
 @Table(name = "follows") // Tên bảng phải khớp với SQL bạn tạo
@@ -13,6 +15,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @IdClass(FollowId.class) // Khóa chính phức hợp
 public class Follow {
+
+    private static final long serialVersionUID = 1L;
+
+
     @Id
     @Column(name = "follower_id")
     private Long followerId;

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.io.Serializable; // NHỚ IMPORT DÒNG NÀY
+
 
 @Entity
 @Table(name = "collection_items")
@@ -13,6 +15,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @IdClass(CollectionItemId.class) // Composite Key
 public class CollectionItem {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @Column(name = "collection_id")
     private Long collectionId;
